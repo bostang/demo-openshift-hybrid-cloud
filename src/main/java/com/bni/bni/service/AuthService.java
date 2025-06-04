@@ -1,58 +1,80 @@
 package com.bni.bni.service;
 
+import com.bni.bni.entity.User;
+import com.bni.bni.repository.UserRepository;
 import com.bni.bni.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
+/**
+ * Service untuk menangani operasi otentikasi seperti registrasi dan login pengguna.
+ */
 @Service
 public class AuthService {
-    private final String[][] users = {
-        {"admin", "password123"},
-        {"user", "admin123"}
-    };
-
+    
+    // Dependency injection untuk komponen yang diperlukan
     @Autowired
-    private PasswordEncoder encoder;
-
+    private UserRepository userRepository;  // Mengganti nama 'repo' menjadi lebih deskriptif
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
     @Autowired
     private JwtUtil jwtUtil;
 
-    // public String register(String username, String password) {
-    //     if (repo.existsById(username)) {
-    //         logger.warn("PERCOBAAN REGSTRASI DENGAN MENGGUNAKAN USER TERDAFTAR: {}", username);
-    //         return "User already exists";
-    //     }
-    //     User user = new User();
-    //     user.setUsername(username);
-    //     user.setPasswordHash(encoder.encode(password));
-    //     user.setRole("USER");
-    //     repo.save(user);
+    /**
+     * Mendaftarkan pengguna baru ke sistem.
+     * 
+     * @param username Nama pengguna yang akan didaftarkan
+     * @param password Password pengguna (belum dienkripsi)
+     * @return Pesan status registrasi
+     * @TODO: Sebaiknya menggunakan custom exception atau response object daripada string
+     * @TODO: Password belum dienkripsi dan disimpan ke database
+     */
+    public String register(String username, String password) {
+        // Validasi apakah username sudah terdaftar
+        if (userRepository.existsByUsername(username)) {
+            return "User sudah ada!";
+        }
 
-    //     logger.warn("PERCOBAAN REGISTER BERHASIL: {}", username);
-    //     return "Registered successfully";
-    // }
+        // Membuat entitas user baru
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setRole("USER");  // Role default untuk user baru
+        newUser.setCreatedAt(OffsetDateTime.now());
+        
+        // @TODO: Seharusnya password dienkripsi sebelum disimpan
+        // newUser.setPasswordHash(passwordEncoder.encode(password));
+        
+        userRepository.save(newUser);
 
-    // public String login(String username, String password) {
-    //     Optional<User> user = repo.findByUsername(username);
-    //     if (user.isPresent() && encoder.matches(password, user.get().getPasswordHash())) {
-    //         logger.warn("PERCOBAAN LOGIN BERHASIL: {}", username);
-    //         return jwtUtil.generateToken(username, user.get().getRole());
-    //     }
+        return "Registrasi berhasil!";
+    }
 
-    //     logger.warn("PERCOBAAN LOGIN GAGAL, USERNAME ATAU PASSWORD SALAH: {}", username);
-    //     return null;
-    // }
-
+    /**
+     * Melakukan proses login pengguna dan mengembalikan token JWT jika berhasil.
+     * 
+     * @param username Nama pengguna
+     * @param password Password (belum dienkripsi)
+     * @return Token JWT jika login berhasil, null jika gagal
+     * @TODO: Sebaiknya menggunakan custom exception untuk kasus login gagal
+     */
     public String login(String username, String password) {
-        for (String[] u : users) {
-            if (u[0].equals(username) && u[1].equals(password)) {
-                return jwtUtil.generateToken(username, "USER");
+        Optional<User> userOptional = userRepository.findByUsername(username);
+
+        // Verifikasi password jika user ditemukan
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            
+            // @TODO: Perlu memastikan passwordHash tidak null sebelum memverifikasi
+            if (passwordEncoder.matches(password, user.getPasswordHash())) {
+                return jwtUtil.generateToken(username, user.getRole());
             }
         }
 
-        return null;
+        return null;  // Login gagal
     }
 }

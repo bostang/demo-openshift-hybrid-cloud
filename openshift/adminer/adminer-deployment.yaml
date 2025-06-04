@@ -1,0 +1,20 @@
+# Fungsi: Deploy Adminer (tool berbasis web untuk manage database).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminer
+  template:  # Perbaikan indentasi (sejajar dengan selector)
+    metadata:
+      labels:
+        app: adminer
+    spec:
+      containers:
+      - name: adminer
+        image: adminer:latest   # Pakai versi terbaru Adminer.
+        ports:
+        - containerPort: 8080   # Port tempat adminer berjalan

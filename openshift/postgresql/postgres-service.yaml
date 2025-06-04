@@ -1,0 +1,14 @@
+# Fungsi: Buat alamat internal untuk akses database.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db
+spec:
+  selector:
+    app: postgres-db
+  ports:
+    - port: 5432          # port yang digunakan
+      targetPort: 5432
+  type: ClusterIP  # Opsional (default), bisa diubah ke NodePort/LoadBalancer jika diperlukan
+                   # Hanya bisa diakses di internal Kubernetes.

@@ -1,0 +1,15 @@
+# Fungsi: Buat alamat internal untuk akses Adminer.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer
+spec:
+  type: ClusterIP  # Default, bisa diubah ke NodePort/LoadBalancer
+  selector:
+    app: adminer
+  ports:
+    - name: http  # Nama port (opsional)
+      port: 8080
+      targetPort: 8080
+  # sessionAffinity: ClientIP  # Opsional

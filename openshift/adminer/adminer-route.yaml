@@ -1,0 +1,14 @@
+# Fungsi: Buat URL publik (dengan HTTPS) untuk akses Adminer dari browser.
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: adminer
+spec:
+  to:
+    kind: Service
+    name: adminer
+  port:
+    targetPort: 8080    # Arahkan ke port Service Adminer.
+  tls:
+    termination: edge   # Aktifkan HTTPS.

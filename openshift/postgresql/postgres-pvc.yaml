@@ -1,0 +1,12 @@
+# Fungsi: Minta penyimpanan permanen (1GB) untuk database.
+# PVC: persistent volume claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce   #  Hanya bisa dipakai 1 server sekaligus.
+  resources:
+    requests:
+      storage: 1Gi    # Kapasitas 1GB.

@@ -10,39 +10,60 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
-@Service
+/**
+ * Service class untuk menangani logika bisnis terkait autentikasi
+ * termasuk registrasi dan login pengguna
+ */
+@Service // Menandai class ini sebagai Spring Service
 public class AuthService {
 
-    @Autowired
+    @Autowired // Dependency injection untuk UserRepository
     private UserRepository repo;
 
-    @Autowired
+    @Autowired // Dependency injection untuk PasswordEncoder (biasanya BCrypt)
     private PasswordEncoder encoder;
 
-    @Autowired
+    @Autowired // Dependency injection untuk JwtUtil (JWT utilities)
     private JwtUtil jwtUtil;
 
+    /**
+     * Method untuk registrasi pengguna baru
+     * @param username username pengguna
+     * @param password password dalam plaintext
+     * @return Pesan status registrasi
+     */
     public String register(String username, String password) {
+        // Cek apakah username sudah terdaftar
         if (repo.existsByUsername(username)) {
             return "User already exists";
         }
 
+        // Buat user baru
         User user = new User();
         user.setUsername(username);
-        user.setPasswordHash(encoder.encode(password));
-        user.setRole("USER");
-        user.setCreatedAt(OffsetDateTime.now());
-        repo.save(user);
+        user.setPasswordHash(encoder.encode(password)); // Encode password sebelum disimpan
+        user.setRole("USER"); // Set default role
+        user.setCreatedAt(OffsetDateTime.now()); // Set waktu pembuatan
+        repo.save(user); // Simpan ke database
 
         return "Registered successfully";
     }
 
+    /**
+     * Method untuk proses login pengguna
+     * @param username username pengguna
+     * @param password password dalam plaintext
+     * @return Token JWT jika login berhasil, null jika gagal
+     */
     public String login(String username, String password) {
+        // Cari user berdasarkan username
         Optional<User> user = repo.findByUsername(username);
+        
+        // Verifikasi password dan generate token jika valid
         if (user.isPresent() && encoder.matches(password, user.get().getPasswordHash())) {
             return jwtUtil.generateToken(username, user.get().getRole());
         }
 
-        return null;
+        return null; // Return null jika autentikasi gagal
     }
 }

@@ -3,7 +3,7 @@ name: Trigger OpenShift Build
 on:
   push:
     branches:
-      - main
+      - masters
 
 jobs:
   trigger-build:

@@ -40,8 +40,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> body) {
         String username = body.get("username");
+        String emailAddress = body.get("email_address");
         String password = body.get("password");
-        String message = authService.register(username, password);
+        String message = authService.register(username, emailAddress, password);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", 200);
@@ -60,8 +61,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) {
         String username = body.get("username");
+        String emailAddress = body.get("email_address");
         String password = body.get("password");
-        String token = authService.login(username, password);
+        String token = authService.login(username, emailAddress, password);
 
         Map<String, Object> response = new HashMap<>();
         if (token != null) {

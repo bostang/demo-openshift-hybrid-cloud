@@ -32,7 +32,7 @@ public class AuthService {
      * @param password password dalam plaintext
      * @return Pesan status registrasi
      */
-    public String register(String username, String password) {
+    public String register(String username, String emailAddress, String password) {
         // Cek apakah username sudah terdaftar
         if (repo.existsByUsername(username)) {
             return "User already exists";
@@ -44,6 +44,9 @@ public class AuthService {
         user.setPasswordHash(encoder.encode(password)); // Encode password sebelum disimpan
         user.setRole("USER"); // Set default role
         user.setCreatedAt(OffsetDateTime.now()); // Set waktu pembuatan
+        user.setEmailAddress(emailAddress); // Set email address
+        user.setIsActive(true); // Set isActive
+        user.setUpdatedAt(OffsetDateTime.now()); // Set waktu pembuatan
         repo.save(user); // Simpan ke database
 
         return "Registered successfully";
@@ -53,14 +56,15 @@ public class AuthService {
      * Method untuk proses login pengguna
      * @param username username pengguna
      * @param password password dalam plaintext
+     * @param emailAddress email address yang dimasukkan
      * @return Token JWT jika login berhasil, null jika gagal
      */
-    public String login(String username, String password) {
+    public String login(String username, String emailAddress, String password) {
         // Cari user berdasarkan username
         Optional<User> user = repo.findByUsername(username);
         
-        // Verifikasi password dan generate token jika valid
-        if (user.isPresent() && encoder.matches(password, user.get().getPasswordHash())) {
+        // Verifikasi password + emailAddress dan generate token jika valid
+        if (user.isPresent() && encoder.matches(password, user.get().getPasswordHash()) && (user.get().getEmailAddress().equals(emailAddress))) {
             return jwtUtil.generateToken(username, user.get().getRole());
         }
 

@@ -2,6 +2,17 @@
 
 This is a simple Spring Boot API that provides user **registration** and **login** functionality using **Oracle SQL** as the database.
 
+## Tugas:
+Update tabel `user` menjadi:
+```bash
+id
+username
+email_address
+is_active
+created_at
+updated_at
+# password_hash
+# role
 ---
 
 ## 🚀 Features

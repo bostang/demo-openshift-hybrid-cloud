@@ -26,7 +26,7 @@ pipeline{
 
     // Pesan sukses/gagal proses pipeline 
     post{
-        sucess {
+        success {
             echo '✅ Build & deploy behasil via OpenShift BuildConfig'
         }
         failure{

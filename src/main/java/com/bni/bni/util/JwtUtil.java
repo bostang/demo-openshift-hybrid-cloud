@@ -1,5 +1,6 @@
 package com.bni.bni.util;
 
+import com.bni.bni.entity.User;  // Tambahkan ini
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ public class JwtUtil {
      * @param role role pengguna
      * @return String JWT token yang sudah di-sign
      */
+    /*
     public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username) // Set subject (biasanya username/userId)
@@ -34,7 +36,22 @@ public class JwtUtil {
                 .signWith(key) // Sign token dengan secret key
                 .compact(); // Generate token string
     }
-
+    */
+    public String generateToken(User user) {
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+                .claim("user_id", user.getId()) // Menambahkan user_id ke token
+                .claim("role", user.getRole())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key)
+                .compact();
+    }
+    
+    public Long getUserIdFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("user_id", Long.class);
+    }
     /**
      * Memvalidasi JWT token
      * @param token JWT token yang akan divalidasi

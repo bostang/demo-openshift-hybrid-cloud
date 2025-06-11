@@ -59,6 +59,7 @@ public class AuthService {
      * @param emailAddress email address yang dimasukkan
      * @return Token JWT jika login berhasil, null jika gagal
      */
+    /*
     public String login(String username, String emailAddress, String password) {
         // Cari user berdasarkan username
         Optional<User> user = repo.findByUsername(username);
@@ -69,5 +70,17 @@ public class AuthService {
         }
 
         return null; // Return null jika autentikasi gagal
+    }
+    */
+    public String login(String username, String emailAddress, String password) {
+        Optional<User> user = repo.findByUsername(username);
+        
+        if (user.isPresent() && 
+            encoder.matches(password, user.get().getPasswordHash()) && 
+            user.get().getEmailAddress().equals(emailAddress)) {
+            
+            return jwtUtil.generateToken(user.get());
+        }
+        return null;
     }
 }
